@@ -12,10 +12,42 @@ var (
 	AFFECTATION Action = "="
 )
 
-type Const[T interface{ int | string }] struct {
-	name   string
-	action Action
-	value  T
+type Symbol string
+
+var (
+	EQUAL             Symbol = "="
+	OEPN_BRACKET             = "{"
+	CLOSE_BRACKET            = "}"
+	OEPN_HOOK                = "["
+	CLOSE_HOOK               = "]"
+	OEPN_PARENTHESIS         = "("
+	CLOSE_PARENTHESIS        = ")"
+)
+
+type SymbolsComparaisons map[Symbol]Action
+
+var symbols = SymbolsComparaisons{
+	EQUAL: AFFECTATION,
+}
+
+type Instruction[T comparable] struct {
+	name    string
+	action  Action
+	value   T
+	content *Instruction[T]
+}
+
+func NewConst[T comparable](name string, action Action, value T) *Instruction[T] {
+	return &Instruction[T]{
+		name:    name,
+		action:  action,
+		value:   value,
+		content: nil,
+	}
+}
+
+func NewFunctionCall[T comparable](name string, content *Instruction[T]) *Instruction[T] {
+	return &Instruction[T]{name: name, content: content}
 }
 
 func main() {
@@ -46,11 +78,20 @@ func main() {
 		splitCode = append(splitCode, t)
 	}
 
+	/*var t []Instruction[interface{ int | string }]
+
+	t = append(t, NewConst("var", AFFECTATION, 12))
+
+	var lastConst = t[0].(Instruction[int])
+	t = append(t, NewFunctionCall("print", &lastConst))
+
 	for _, line := range splitCode {
 		for _, row := range line {
 			println(row)
 		}
 	}
 
-	// println(string(data), LinesBreak, l[0])
+	for _, e := range t {
+		println(e)
+	}*/
 }
