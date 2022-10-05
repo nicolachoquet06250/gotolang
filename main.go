@@ -1,97 +1,72 @@
 package main
 
 import (
+	"fmt"
+	"gotolang/parser"
+	"gotolang/syntax_interpreters/call_func"
+	"gotolang/syntax_interpreters/consts"
+	"gotolang/types"
 	"os"
-	"path/filepath"
-	"strings"
 )
 
-type Action string
-
-var (
-	AFFECTATION Action = "="
-)
-
-type Symbol string
-
-var (
-	EQUAL             Symbol = "="
-	OEPN_BRACKET             = "{"
-	CLOSE_BRACKET            = "}"
-	OEPN_HOOK                = "["
-	CLOSE_HOOK               = "]"
-	OEPN_PARENTHESIS         = "("
-	CLOSE_PARENTHESIS        = ")"
-)
-
-type SymbolsComparaisons map[Symbol]Action
-
-var symbols = SymbolsComparaisons{
-	EQUAL: AFFECTATION,
-}
-
-type Instruction[T comparable] struct {
-	name    string
-	action  Action
-	value   T
-	content *Instruction[T]
-}
-
-func NewConst[T comparable](name string, action Action, value T) *Instruction[T] {
-	return &Instruction[T]{
-		name:    name,
-		action:  action,
-		value:   value,
-		content: nil,
-	}
-}
-
-func NewFunctionCall[T comparable](name string, content *Instruction[T]) *Instruction[T] {
-	return &Instruction[T]{name: name, content: content}
+var symbols = types.SymbolsComparaisons{
+	types.EQUAL: types.AFFECTATION,
 }
 
 func main() {
-	var err error
-
 	file := os.Args[1]
-	dir, err := os.Getwd()
-	if err != nil {
-		panic(err)
-	}
+	data := openFile(file)
 
-	completePathFile := filepath.FromSlash(dir + "/" + file)
+	var splitCode = parser.Parse(data)
 
-	data, err := os.ReadFile(completePathFile)
-	if err != nil {
-		panic(err)
-	}
-
-	l := strings.Split(string(data), LinesBreak)
-	var splitCode [][]string
-
-	for _, line := range l {
-		splitLine := strings.Split(line, " ")
-		var t []string
-		for _, row := range splitLine {
-			t = append(t, row)
+	/*for _, row := range *splitCode {
+		for _, col := range row {
+			println(fmt.Sprintf(`"%s"`, col))
 		}
-		splitCode = append(splitCode, t)
-	}
-
-	/*var t []Instruction[interface{ int | string }]
-
-	t = append(t, NewConst("var", AFFECTATION, 12))
-
-	var lastConst = t[0].(Instruction[int])
-	t = append(t, NewFunctionCall("print", &lastConst))
-
-	for _, line := range splitCode {
-		for _, row := range line {
-			println(row)
-		}
-	}
-
-	for _, e := range t {
-		println(e)
+		println("-------------------------------")
 	}*/
+
+	var (
+		minIndex = -1
+		maxIndex = -1
+	)
+	for i, row := range *splitCode {
+		var lastInstructionKeyword types.Keyword
+		for j, col := range row {
+			if types.IsKeyword(col) && col == string(types.CONST) {
+				minIndex = j
+				lastInstructionKeyword = types.CONST
+			} else if types.IsSymbol(col) && col == types.SEMICOLUMN {
+				maxIndex = j
+				if lastInstructionKeyword == types.CONST {
+					interpreted := consts.Interpret(splitCode, i, minIndex, maxIndex)
+
+					var value string
+					if interpreted.Type == consts.STRING {
+						value += `"`
+					}
+					value += interpreted.Value
+					if interpreted.Type == consts.STRING {
+						value += `"`
+					}
+
+					println(fmt.Sprintf(`%s=%s`, interpreted.Name, value))
+				} else {
+					interpreted := call_func.Interpret(splitCode, i, minIndex, maxIndex)
+
+					var value string
+					if interpreted.Value.Type == consts.STRING {
+						value += `"`
+					}
+					value += interpreted.Value.Value
+					if interpreted.Value.Type == consts.STRING {
+						value += `"`
+					}
+
+					println(fmt.Sprintf(`%s(%s)`, interpreted.Name, value))
+				}
+				minIndex = 0
+			}
+		}
+	}
 }

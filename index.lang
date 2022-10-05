@@ -1,3 +1,4 @@
 const var = "test";
+const var2 = 10;
 
 print(var);
