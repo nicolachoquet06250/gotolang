@@ -1,96 +1,65 @@
 package types
 
-import "reflect"
-
-type Action string
-
-var (
-	AFFECTATION Action = "="
-)
-
-type Symbol string
-
-var (
-	EQUAL             Symbol = "="
-	OEPN_BRACKET             = "{"
-	CLOSE_BRACKET            = "}"
-	OEPN_HOOK                = "["
-	CLOSE_HOOK               = "]"
-	OEPN_PARENTHESIS         = "("
-	CLOSE_PARENTHESIS        = ")"
-	DOUBLE_QUOTE             = "\""
-	SIMPLE_QUOTE             = "'"
-	SEMICOLUMN               = ";"
-)
-
-func IsSymbol(symbol string) bool {
-	var s = new(Symbol)
-
-	if symbol == string(EQUAL) ||
-		symbol == OEPN_BRACKET ||
-		symbol == CLOSE_BRACKET ||
-		symbol == OEPN_HOOK ||
-		symbol == CLOSE_HOOK ||
-		symbol == OEPN_PARENTHESIS ||
-		symbol == CLOSE_PARENTHESIS ||
-		symbol == DOUBLE_QUOTE ||
-		symbol == SIMPLE_QUOTE ||
-		symbol == SEMICOLUMN {
-		_s := Symbol(symbol)
-		s = &_s
-	}
-
-	typeName := reflect.TypeOf(s).Elem().String()
-	if *s == "" {
-		typeName = "nil"
-	}
-
-	return typeName == "types.Symbol"
+type InstructionValueType struct {
+	InterpretedConstType
 }
 
-type Keyword string
+func CastToInstructionValueType(i InterpretedConstType) InstructionValueType {
+	return InstructionValueType{InterpretedConstType: i}
+}
+
+func (t InstructionValueType) String() string {
+	switch t.InterpretedConstType {
+	case ICT_STRING, ICT_INT:
+		return string(t.InterpretedConstType)
+	default:
+		return ""
+	}
+}
+
+type InstructionType string
 
 var (
-	CONST Keyword = "const"
+	ASSIGN_CONST InstructionType = "assign_const"
+	CALL_FUNC    InstructionType = "call_func"
 )
 
-func IsKeyword(keyword string) bool {
-	var s = new(Keyword)
-
-	if keyword == string(CONST) {
-		_s := Keyword(keyword)
-		s = &_s
+func (it InstructionType) Is(instructionType InstructionType) bool {
+	switch instructionType {
+	case ASSIGN_CONST, CALL_FUNC:
+		return true
+	default:
+		return false
 	}
-
-	typeName := reflect.TypeOf(s).Elem().String()
-	if *s == "" {
-		typeName = "nil"
-	}
-
-	return typeName == "types.Keyword"
 }
 
 type Instruction[T comparable] struct {
-	Name    string
-	Action  Action
-	Value   T
-	Content *Instruction[T]
+	Name            string
+	Action          Action
+	Value           T
+	ValueType       InstructionValueType
+	Content         *Instruction[T]
+	InstructionType InstructionType
 }
 
-func NewConst[T comparable](name string, action Action, value T) *Instruction[T] {
-	return &Instruction[T]{
-		Name:    name,
-		Action:  action,
-		Value:   value,
-		Content: nil,
+func NewConst[T comparable](name string, action Action, value T, valueType InstructionValueType) *Instruction[T] {
+	if valueType.IsValid() {
+		return &Instruction[T]{
+			Name:            name,
+			Action:          action,
+			Value:           value,
+			Content:         nil,
+			InstructionType: ASSIGN_CONST,
+			ValueType:       valueType,
+		}
 	}
+	return nil
 }
 
 func NewFunctionCall[T comparable](name string, content *Instruction[T]) *Instruction[T] {
 	return &Instruction[T]{
-		Name:    name,
-		Content: content,
+		Name:            name,
+		Content:         content,
+		InstructionType: CALL_FUNC,
 	}
 }
-
-type SymbolsComparaisons map[Symbol]Action

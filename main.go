@@ -1,32 +1,24 @@
 package main
 
 import (
-	"fmt"
 	"gotolang/parser"
-	"gotolang/syntax_interpreters/call_func"
-	"gotolang/syntax_interpreters/consts"
+	"gotolang/syntax_interpreters"
 	"gotolang/types"
+	"gotolang/utils"
 	"os"
 )
 
-var symbols = types.SymbolsComparaisons{
-	types.EQUAL: types.AFFECTATION,
-}
-
 func main() {
 	file := os.Args[1]
-	data := openFile(file)
+	data := utils.OpenFile(file)
 
 	var splitCode = parser.Parse(data)
 
-	/*for _, row := range *splitCode {
-		for _, col := range row {
-			println(fmt.Sprintf(`"%s"`, col))
-		}
-		println("-------------------------------")
-	}*/
+	syntax_interpreters.Interpret(
+		types.NewProgram(splitCode),
+	)
 
-	var (
+	/*var (
 		minIndex = -1
 		maxIndex = -1
 	)
@@ -68,5 +60,5 @@ func main() {
 				minIndex = 0
 			}
 		}
-	}
+	}*/
 }

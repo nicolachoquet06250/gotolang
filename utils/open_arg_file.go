@@ -1,15 +1,15 @@
-package main
+package utils
 
 import "os"
 
-func openFile(file string) string {
+func OpenFile(file string) string {
 	dir, err := os.Getwd()
-	checkError(err)
+	CheckError(err)
 
 	completePathFile := buildPath(dir, file)
 
 	data, err := os.ReadFile(completePathFile)
-	checkError(err)
+	CheckError(err)
 
 	return string(data)
 }

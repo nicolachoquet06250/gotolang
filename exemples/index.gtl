@@ -1,0 +1,7 @@
+const var = "test";
+const var2 = 10;
+   const var3 = 15;
+
+print(var);
+print(var2);
+print(var3);

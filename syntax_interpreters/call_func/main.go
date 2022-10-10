@@ -1,22 +1,10 @@
 package call_func
 
-import "gotolang/syntax_interpreters/consts"
-
-type InterpretedCallFuncType string
-
-var (
-	STRING InterpretedCallFuncType = "string"
-	INT    InterpretedCallFuncType = "int"
-	CONST  InterpretedCallFuncType = "const"
+import (
+	"gotolang/types"
 )
 
-type InterpretedCallFunc[T comparable] struct {
-	Name  string
-	Type  InterpretedCallFuncType
-	Value *consts.InterpretedConst[string]
-}
-
-func Interpret(arr *[][]string, line, min, max int) *InterpretedCallFunc[string] {
+func Interpret(arr *[][]string, line, min, max int, result []*types.Instruction[string]) (*types.InterpretedCallFunc[string], int) {
 	s := (*arr)[line][min:max]
 
 	var name string
@@ -30,13 +18,38 @@ func Interpret(arr *[][]string, line, min, max int) *InterpretedCallFunc[string]
 		constName = s[2]
 	}
 
-	return &(InterpretedCallFunc[string]{
-		Name: name,
-		Type: CONST,
-		Value: &(consts.InterpretedConst[string]{
-			Name:  constName,
-			Type:  consts.STRING,
-			Value: "test",
-		}),
-	})
+	_const := new(types.InterpretedConst[string])
+	for _, e := range result {
+		if e.InstructionType.Is(types.ASSIGN_CONST) && e.Name == constName {
+			_const = &(types.InterpretedConst[string]{
+				Name:  constName,
+				Type:  e.ValueType.InterpretedConstType,
+				Value: e.Value,
+			})
+			break
+		}
+	}
+
+	return &(types.InterpretedCallFunc[string]{
+		Name:  name,
+		Value: _const,
+	}), len(s)
+}
+
+func Create(t *types.InterpretedCallFunc[string]) (lastInstruction *types.Instruction[string]) {
+	newConst := types.NewConst(
+		t.Value.Name,
+		types.AFFECTATION,
+		t.Value.Value,
+		types.CastToInstructionValueType(t.Value.Type),
+	)
+
+	if newConst != nil {
+		lastInstruction = types.NewFunctionCall[string](
+			t.Name,
+			newConst,
+		)
+	}
+
+	return
 }

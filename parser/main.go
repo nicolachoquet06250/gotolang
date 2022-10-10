@@ -48,7 +48,7 @@ func Parse(data string) (code *[][]string) {
 
 			if len(col) > 1 {
 				for _, s := range strings.Split(col, "") {
-					if types.IsSymbol(s) {
+					if types.Symbol(s).IsValid() {
 						lastWord = sendElementToArrayAndReset(tmp, lastWord)
 						sendSymbolToArray(tmp, s)
 						continue
