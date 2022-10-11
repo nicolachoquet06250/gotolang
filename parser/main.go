@@ -3,6 +3,7 @@ package parser
 import (
 	"gotolang/constants"
 	"gotolang/types"
+	"gotolang/utils"
 	"strings"
 )
 
@@ -36,6 +37,15 @@ func Parse(data string) (code *[][]string) {
 		splitCode = append(splitCode, t)
 	}
 
+	// debug
+	utils.DebugAction(func() {
+		for _, row := range splitCode {
+			for _, col := range row {
+				println(col)
+			}
+		}
+	}, false)
+
 	code = new([][]string)
 
 	for _, row := range splitCode {
@@ -43,7 +53,7 @@ func Parse(data string) (code *[][]string) {
 
 		var lastWord string
 
-		for _, col := range row {
+		for i, col := range row {
 			lastWord = sendElementToArrayAndReset(tmp, lastWord)
 
 			if len(col) > 1 {
@@ -60,10 +70,23 @@ func Parse(data string) (code *[][]string) {
 				lastWord = sendElementToArrayAndReset(tmp, lastWord)
 				sendSymbolToArray(tmp, col)
 			}
+
+			if i == len(row)-1 && lastWord != "" {
+				lastWord = sendElementToArrayAndReset(tmp, lastWord)
+			}
 		}
 
 		createLine(code, tmp)
 	}
+
+	// debug
+	utils.DebugAction(func() {
+		for _, row := range splitCode {
+			for _, col := range row {
+				println(col)
+			}
+		}
+	}, false)
 
 	return
 }

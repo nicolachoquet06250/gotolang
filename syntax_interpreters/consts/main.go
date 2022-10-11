@@ -20,14 +20,14 @@ func Interpret(arr *[][]string, line, min, max int) (*types.InterpretedConst[str
 			Name:  name,
 			Type:  types.ICT_STRING,
 			Value: v,
-		}), len(s)
+		}), max
 	} else if s[3] != `"` {
 		var v = s[3]
 		return &(types.InterpretedConst[string]{
 			Name:  name,
 			Type:  types.ICT_INT,
 			Value: v,
-		}), len(s)
+		}), max
 	}
 
 	return nil, 0

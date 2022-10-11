@@ -14,51 +14,15 @@ func main() {
 
 	var splitCode = parser.Parse(data)
 
+	utils.DebugAction(func() {
+		for _, row := range *splitCode {
+			for _, col := range row {
+				println(col)
+			}
+		}
+	}, false)
+
 	syntax_interpreters.Interpret(
 		types.NewProgram(splitCode),
 	)
-
-	/*var (
-		minIndex = -1
-		maxIndex = -1
-	)
-	for i, row := range *splitCode {
-		var lastInstructionKeyword types.Keyword
-		for j, col := range row {
-			if types.IsKeyword(col) && col == string(types.CONST) {
-				minIndex = j
-				lastInstructionKeyword = types.CONST
-			} else if types.IsSymbol(col) && col == types.SEMICOLUMN {
-				maxIndex = j
-				if lastInstructionKeyword == types.CONST {
-					interpreted := consts.Interpret(splitCode, i, minIndex, maxIndex)
-
-					var value string
-					if interpreted.Type == consts.STRING {
-						value += `"`
-					}
-					value += interpreted.Value
-					if interpreted.Type == consts.STRING {
-						value += `"`
-					}
-
-					println(fmt.Sprintf(`%s=%s`, interpreted.Name, value))
-				} else {
-					interpreted := call_func.Interpret(splitCode, i, minIndex, maxIndex)
-
-					var value string
-					if interpreted.Value.Type == consts.STRING {
-						value += `"`
-					}
-					value += interpreted.Value.Value
-					if interpreted.Value.Type == consts.STRING {
-						value += `"`
-					}
-
-					println(fmt.Sprintf(`%s(%s)`, interpreted.Name, value))
-				}
-				minIndex = 0
-			}
-		}
-	}*/
 }

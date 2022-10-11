@@ -5,3 +5,14 @@ const var2 = 10;
 print(var);
 print(var2);
 print(var3);
+
+func t(toto: string, test: int) => null;
+
+// func toto() {
+//  return null;
+// };
+
+// test de commentaire
+
+// test de commentaires
+// sur plusieurs lignes
