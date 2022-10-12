@@ -10,54 +10,6 @@ import (
 	"reflect"
 )
 
-type (
-	MultiType interface{}
-
-	AssocList[T MultiType] map[string]T
-
-	Toto struct {
-		Name string
-		Age  int
-	}
-
-	Tata struct {
-		FullName string
-		Notes    []float32
-	}
-)
-
-func toto[T MultiType](data AssocList[MultiType]) (t *T) {
-	//var t = new(T)
-
-	for _, val := range data {
-		for k, v := range val.(AssocList[MultiType]) {
-			f := reflect.ValueOf(v)
-			st := reflect.ValueOf(t)
-
-			if st.Kind() == reflect.Struct {
-				s := st.FieldByName(k)
-
-				if f.Kind() == reflect.String && true == s.CanSet() {
-					s.SetString(f.String())
-				} else if f.Kind() == reflect.Float64 && true == s.CanSet() {
-					s.SetFloat(f.Float())
-				} else if f.Kind() == reflect.Slice && true == s.CanSet() {
-					s.Set(f.Slice(0, f.Len()))
-				}
-			}
-		}
-	}
-
-	return
-}
-
-func tata() {
-	var p AssocList[MultiType]
-
-	println(fmt.Sprintf("%T", toto[Toto](p)))
-	println(fmt.Sprintf("%T", toto[Tata](p)))
-}
-
 func main() {
 	file := os.Args[1]
 	data := utils.OpenFile(file)
@@ -77,6 +29,83 @@ func main() {
 	)
 
 	utils.DebugAction(func() {
-		tata()
-	}, "Test de types génériques avec remplissage dynamique", false)
+		testGetFromType()
+	}, "Test de types génériques avec remplissage dynamique", true)
+}
+
+type (
+	MultiType interface{ any | []any }
+
+	AssocList[T MultiType] map[string]T
+
+	Toto struct {
+		Name string
+		Age  int
+	}
+
+	Tata struct {
+		FullName string
+		Notes    []float32
+	}
+)
+
+func GetFromType[T MultiType](data AssocList[MultiType]) (t T) {
+	for key, val := range data {
+		if utils.MatchRegex(`^((\*?\[\])?[a-z0-9]+)$`, reflect.TypeOf(val).String()) {
+			f := reflect.ValueOf(val)
+			st := reflect.New(reflect.TypeOf(t))
+
+			if st.Kind() == reflect.Struct {
+				s := st.FieldByName(key)
+
+				if f.Kind() == reflect.String && true == s.CanSet() {
+					s.SetString(f.String())
+				} else if f.Kind() == reflect.Float64 && true == s.CanSet() {
+					s.SetFloat(f.Float())
+				} else if f.Kind() == reflect.Slice && true == s.CanSet() {
+					s.Set(f.Slice(0, f.Len()))
+				}
+			}
+
+			var _t = st.Elem().Interface().(T)
+			t = _t
+		}
+	}
+
+	return
+}
+
+func testGetFromType() {
+	println(
+		fmt.Sprintf(
+			"%T",
+			GetFromType[Toto](
+				AssocList[MultiType]{
+					"Name": "Nicolas",
+					"Age":  27,
+				},
+			),
+		),
+	)
+
+	println(
+		fmt.Sprintf(
+			"%T",
+			GetFromType[Tata](
+				AssocList[MultiType]{
+					"FullName": "Nicolas Choquet",
+					"Notes":    []float32{12, 12.5, 20, 15},
+				},
+			),
+		),
+	)
+
+	t := GetFromType[Tata](
+		AssocList[MultiType]{
+			"FullName": "Nicolas Choquet",
+			"Notes":    []float32{12, 12.5, 20, 15},
+		},
+	)
+	println(fmt.Sprintf("%v", t))
+	println(t.FullName, len(t.Notes))
 }

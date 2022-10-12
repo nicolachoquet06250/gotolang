@@ -2,7 +2,7 @@ package consts
 
 import (
 	"gotolang/types"
-	"regexp"
+	"gotolang/utils"
 )
 
 func Interpret(arr *[][]string, line, min, max int) (*types.InterpretedConst[string], int) {
@@ -34,10 +34,9 @@ func Interpret(arr *[][]string, line, min, max int) (*types.InterpretedConst[str
 }
 
 func Create(t *types.InterpretedConst[string]) (lastInstruction *types.Instruction[string]) {
-	var re = regexp.MustCompile(`(?m)[0-9]+`)
-
 	_type := types.CastToInstructionValueType(types.ICT_STRING)
-	for range re.FindAllString(t.Value, -1) {
+
+	if utils.MatchRegex(`(?m)[0-9]+`, t.Value) {
 		_type = types.CastToInstructionValueType(types.ICT_INT)
 	}
 
