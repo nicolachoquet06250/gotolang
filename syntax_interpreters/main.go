@@ -97,7 +97,7 @@ func Interpret(program *types.Program) {
 					string(instruction.Action),
 					instruction.Value+": "+instruction.ValueType.String(),
 				)
-			}, true)
+			}, "Analyse des instructions du programme principal : const", true)
 			break
 		case types.CALL_FUNC:
 			utils.DebugAction(func() {
@@ -106,7 +106,7 @@ func Interpret(program *types.Program) {
 					instruction.Name,
 					instruction.Content.Value+": "+instruction.Content.ValueType.String(),
 				)
-			}, true)
+			}, "Analyse des instructions du programme principal: func(...args)", true)
 			break
 		}
 	}

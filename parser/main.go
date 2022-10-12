@@ -44,7 +44,7 @@ func Parse(data string) (code *[][]string) {
 				println(col)
 			}
 		}
-	}, false)
+	}, "", false)
 
 	code = new([][]string)
 
@@ -86,7 +86,7 @@ func Parse(data string) (code *[][]string) {
 				println(col)
 			}
 		}
-	}, false)
+	}, "", false)
 
 	return
 }
