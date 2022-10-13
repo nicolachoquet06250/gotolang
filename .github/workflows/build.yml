@@ -47,8 +47,9 @@ jobs:
           goos: linux
           goarch: amd64
           md5sum: false
-          binary_name: gotolang-linux-amd64
+          binary_name: gotolang
           retry: 3
+          project_path: ./main.go
   release-windows-amd64:
     name: release windows/amd64
     runs-on: ubuntu-latest
@@ -60,8 +61,9 @@ jobs:
           goos: windows
           goarch: amd64
           md5sum: false
-          binary_name: gotolang-windows-amd64
+          binary_name: gotolang
           retry: 3
+          project_path: ./main.go
   release-darwin-amd64:
     name: release darwin/amd64
     runs-on: ubuntu-latest
@@ -73,8 +75,9 @@ jobs:
           goos: darwin
           goarch: amd64
           md5sum: false
-          binary_name: gotolang-darwin-amd64
+          binary_name: gotolang
           retry: 3
+          project_path: ./main.go
   release-darwin-arm64:
     name: release darwin/arm64
     runs-on: ubuntu-latest
@@ -86,5 +89,6 @@ jobs:
           goos: darwin
           goarch: arm64
           md5sum: false
-          binary_name: gotolang-darwin-arm64
+          binary_name: gotolang
           retry: 3
+          project_path: ./main.go
