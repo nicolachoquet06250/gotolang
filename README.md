@@ -8,13 +8,24 @@ Création d'un langage de programmation interprété en golang
 - Créez un fichier `test.gtl` n'importe où sur votre système
 - Remplissez le avec le code suivant :
 ```go
-const _var = "test";
-const _var2 = 10;
-   const _var3 = 15;
+const var = "test";
+const var2 = 10;
+   const var3 = 15;
 
-print(_var);
-print(_var2);
-print(_var3);
+print(var);
+print(var2);
+print(var3);
+
+func t(toto: string, test: int) => null;
+
+// func toto() {
+//  return null;
+// };
+
+// test de commentaire
+
+// test de commentaires
+// sur plusieurs lignes
 ```
 - lancez la commande :
 ```bash
