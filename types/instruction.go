@@ -155,4 +155,4 @@ func NewCreatedFunction[F Func](name string, returnType string, parameters []TCo
 	}, handleError)
 }
 
-// @TODO Utiliser et corriger si besoin la nouvelle structure d'instructions
+//@TODO Utiliser et corriger si besoin la nouvelle structure d'instructions
