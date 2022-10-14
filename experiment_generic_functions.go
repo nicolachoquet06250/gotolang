@@ -23,7 +23,7 @@ func getErrorHandler(prefix string) ErrorHandler {
 	}
 }
 
-func main() {
+func _main() {
 	DebugAction(
 		func() {
 			t1 := GetFromType[Toto](
