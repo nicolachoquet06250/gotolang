@@ -7,17 +7,21 @@ import (
 )
 
 type (
-	MultiType interface{ interface{} | []interface{} }
+	MultiType any
 
 	Property[T MultiType] struct {
 		Key   string
 		Value T
 	}
+
+	Properties[T MultiType] []Property[T]
+
+	PropertiesAny []Property[any]
 )
 
 type ErrorHandler func(error)
 
-func GetFromType[T MultiType](props []Property[any], onError ErrorHandler) *T {
+func New[T any](props []Property[any], onError ErrorHandler) *T {
 	var t = *new(T)
 	var newT = reflect.ValueOf(&t).Elem()
 
@@ -34,10 +38,14 @@ func GetFromType[T MultiType](props []Property[any], onError ErrorHandler) *T {
 			func() {
 				println(fmt.Sprintf("%s => %T", property.Key, property.Value))
 			},
-			fmt.Sprintf("GetFromType[T %T](props []Property[any]) *%T", t, t),
+			fmt.Sprintf("New[T %T](props []Property[any]) *%T", t, t),
 			false,
 		)
 	}
 
 	return &t
+}
+
+func NewEmpty[T any]() *T {
+	return new(T)
 }

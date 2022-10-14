@@ -16,8 +16,8 @@ func (ict InterpretedConstType) IsValid() bool {
 	}
 }
 
-type InterpretedConst[T comparable] struct {
+type InterpretedConst struct {
 	Name  string
 	Type  InterpretedConstType
-	Value T
+	Value string
 }

@@ -17,7 +17,7 @@ func (icft InterpretedCallFuncType) IsValid() bool {
 	}
 }
 
-type InterpretedCallFunc[T comparable] struct {
+type InterpretedCallFunc struct {
 	Name  string
-	Value *InterpretedConst[string]
+	Value *InterpretedConst
 }

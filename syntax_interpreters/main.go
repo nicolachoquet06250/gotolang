@@ -14,7 +14,7 @@ import (
 const EndLine = ";"
 const Void = ""
 
-func createInstructionArray(program *types.Program) (result []*types.Instruction[string]) {
+func createInstructionArray(program *types.Program) (result []*types.Instruction) {
 	var (
 		nbCols int
 		nbRows int
@@ -22,7 +22,7 @@ func createInstructionArray(program *types.Program) (result []*types.Instruction
 
 	for y, row := range *program.ParsedCode {
 		var lastCol string
-		var lastInstruction *types.Instruction[string]
+		var lastInstruction *types.Instruction
 		var isVoidLine = len(row) == 1 && row[0] == Void
 
 		if !isVoidLine {
@@ -51,7 +51,7 @@ func createInstructionArray(program *types.Program) (result []*types.Instruction
 				}
 
 				if types.CONST.Is(col) {
-					var t *types.InterpretedConst[string]
+					var t *types.InterpretedConst
 					t, nbCols = consts.Interpret(program.ParsedCode, y, x, len(row))
 					lastInstruction = consts.Create(t)
 				} else if types.Function.Is(col) {
@@ -59,7 +59,7 @@ func createInstructionArray(program *types.Program) (result []*types.Instruction
 					t, nbCols = create_function.Interpret(program.ParsedCode, y, x, len(row))
 					lastInstruction = create_function.Create(t)
 				} else if strings.Contains(strings.Join(row, ""), "(") {
-					var t *types.InterpretedCallFunc[string]
+					var t *types.InterpretedCallFunc
 					t, nbCols = call_func.Interpret(program.ParsedCode, y, x, len(row), result)
 					lastInstruction = call_func.Create(t)
 				} else if types.INLINE_COMMENT.Is(col) {
@@ -71,7 +71,7 @@ func createInstructionArray(program *types.Program) (result []*types.Instruction
 
 				if lastInstruction != nil {
 					result = append(result, lastInstruction)
-					lastInstruction = new(types.Instruction[string])
+					lastInstruction = new(types.Instruction)
 				}
 			}
 		}

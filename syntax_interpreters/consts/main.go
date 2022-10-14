@@ -5,7 +5,11 @@ import (
 	"gotolang/utils"
 )
 
-func Interpret(arr *[][]string, line, min, max int) (*types.InterpretedConst[string], int) {
+func handleError(err error) {
+	println(err.Error())
+}
+
+func Interpret(arr *[][]string, line, min, max int) (*types.InterpretedConst, int) {
 	s := (*arr)[line][min:max]
 
 	var name string
@@ -14,38 +18,49 @@ func Interpret(arr *[][]string, line, min, max int) (*types.InterpretedConst[str
 		name = s[1]
 	}
 
+	var props = new(utils.PropertiesAny)
+
 	if s[3] == `"` && s[4] != "" {
-		var v = s[4]
-		return &(types.InterpretedConst[string]{
-			Name:  name,
-			Type:  types.ICT_STRING,
-			Value: v,
-		}), max
+		props = &utils.PropertiesAny{
+			{
+				Key:   "Name",
+				Value: name,
+			},
+			{
+				Key:   "Type",
+				Value: types.ICT_STRING,
+			},
+			{
+				Key:   "Value",
+				Value: s[4],
+			},
+		}
 	} else if s[3] != `"` {
-		var v = s[3]
-		return &(types.InterpretedConst[string]{
-			Name:  name,
-			Type:  types.ICT_INT,
-			Value: v,
-		}), max
+		props = &utils.PropertiesAny{
+			{
+				Key:   "Name",
+				Value: name,
+			},
+			{
+				Key:   "Type",
+				Value: types.ICT_INT,
+			},
+			{
+				Key:   "Value",
+				Value: s[3],
+			},
+		}
+	}
+
+	if props != nil {
+		return utils.New[types.InterpretedConst](*props, handleError), max
 	}
 
 	return nil, 0
 }
 
-func Create(t *types.InterpretedConst[string]) (lastInstruction *types.Instruction[string]) {
-	_type := types.CastToInstructionValueType(types.ICT_STRING)
-
-	if utils.MatchRegex(`(?m)[0-9]+`, t.Value) {
-		_type = types.CastToInstructionValueType(types.ICT_INT)
-	}
-
-	lastInstruction = types.NewConst(
-		t.Name,
-		types.AFFECTATION,
-		t.Value,
-		_type,
-	)
+func Create[F types.Func](t *types.InterpretedConst) (lastInstruction *types.Instruction[F]) {
+	lastInstruction = types.NewConst[F](t.Name, t.Value)
 
 	return
 }

@@ -2,8 +2,13 @@ package create_function
 
 import (
 	"gotolang/types"
+	"gotolang/utils"
 	"strings"
 )
+
+func handleError(err error) {
+	println(err.Error())
+}
 
 func Interpret(arr *[][]string, line, min, max int) (*types.InterpretedCreatedFunc, int) {
 	s := (*arr)[line][min:max]
@@ -63,15 +68,27 @@ func Interpret(arr *[][]string, line, min, max int) (*types.InterpretedCreatedFu
 		}
 	}
 
-	return &(types.InterpretedCreatedFunc{
-		Name:       name,
-		Parameters: params,
-		Content:    content,
-		ReturnType: returnType,
-	}), max
+	return utils.New[types.InterpretedCreatedFunc](utils.PropertiesAny{
+		{
+			Key:   "Name",
+			Value: name,
+		},
+		{
+			Key:   "Parameters",
+			Value: params,
+		},
+		{
+			Key:   "Content",
+			Value: content,
+		},
+		{
+			Key:   "ReturnType",
+			Value: returnType,
+		},
+	}, handleError), max
 }
 
-func Create(t *types.InterpretedCreatedFunc) (lastInstruction *types.Instruction[string]) {
+func Create(t *types.InterpretedCreatedFunc) (lastInstruction *types.Instruction) {
 	println(t.Name, t.ReturnType, t.Content, len(t.Parameters))
 	for _key, _type := range t.Parameters {
 		println("Le paramètre " + _key + " est de type " + _type)

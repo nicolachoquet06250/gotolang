@@ -22,23 +22,23 @@ func (st ScopeType) IsValid() bool {
 	}
 }
 
-type Scope struct {
+type Scope[F Func] struct {
 	Name         string
 	Type         ScopeType
-	Instructions []Instruction[string]
+	Instructions []Instruction[F]
 }
 
-func (s *Scope) AddInstruction(instruction Instruction[string]) *Scope {
+func (s *Scope[F]) AddInstruction(instruction Instruction[F]) *Scope[F] {
 	s.Instructions = append(s.Instructions, instruction)
 	return s
 }
 
-func NewScope(name string, scopeType ScopeType) (scope *Scope, err error) {
+func NewScope[F Func](name string, scopeType ScopeType) (scope *Scope[F], err error) {
 	if scopeType.IsValid() {
-		scope = &Scope{
+		scope = &Scope[F]{
 			Name:         name,
 			Type:         scopeType,
-			Instructions: []Instruction[string]{},
+			Instructions: []Instruction[F]{},
 		}
 	} else {
 		err = errors.New("invalid scope type")
@@ -46,19 +46,28 @@ func NewScope(name string, scopeType ScopeType) (scope *Scope, err error) {
 	return
 }
 
-type Program struct {
-	Scope
+type Program[F Func] struct {
+	Scope[F]
 	ParsedCode *[][]string
 }
 
-func NewProgram(parsedCode *[][]string) *Program {
+func NewProgram[F Func](parsedCode *[][]string) *Program[F] {
 	var err error
-	var programScope *Scope
-	programScope, err = NewScope("main", MAIN)
+	var programScope *Scope[F]
+	programScope, err = NewScope[F]("main", MAIN)
 	utils.CheckError(err)
 
-	return &Program{
-		Scope:      *programScope,
-		ParsedCode: parsedCode,
-	}
+	return utils.New[Program[F]](utils.PropertiesAny{
+		{
+			Key:   "Scope",
+			Value: *programScope,
+		},
+		{
+			Key:   "ParsedCode",
+			Value: parsedCode,
+		},
+	}, func(err error) {
+		println(err.Error())
+	})
+
 }

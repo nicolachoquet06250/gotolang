@@ -1,10 +1,40 @@
 package call_func
 
 import (
+	"fmt"
 	"gotolang/types"
+	"gotolang/utils"
 )
 
-func Interpret(arr *[][]string, line, min, max int, result []*types.Instruction[string]) (*types.InterpretedCallFunc[string], int) {
+func handleError(err error) {
+	println(err.Error())
+}
+
+func getConstName[F types.Func](result []*types.Instruction[F], constName string) *types.InterpretedConst {
+	c := new(types.InterpretedConst)
+
+	for _, e := range result {
+		if e.Type.Is(types.CreateConst) && e.Const.Name == constName {
+			c = utils.New[types.InterpretedConst](utils.PropertiesAny{
+				{
+					Key:   "Name",
+					Value: constName,
+				},
+				{
+					Key:   "Type",
+					Value: fmt.Sprintf("%T", e.Const.Value),
+				},
+				{
+					Key:   "Value",
+					Value: e.Const.Value,
+				},
+			}, handleError)
+		}
+	}
+	return c
+}
+
+func Interpret[F types.Func](arr *[][]string, line, min, max int, result []*types.Instruction[F]) (*types.InterpretedCallFunc, int) {
 	s := (*arr)[line][min:max]
 
 	var name string
@@ -18,37 +48,26 @@ func Interpret(arr *[][]string, line, min, max int, result []*types.Instruction[
 		constName = s[2]
 	}
 
-	_const := new(types.InterpretedConst[string])
-	for _, e := range result {
-		if e.InstructionType.Is(types.ASSIGN_CONST) && e.Name == constName {
-			_const = &(types.InterpretedConst[string]{
-				Name:  constName,
-				Type:  e.ValueType.InterpretedConstType,
-				Value: e.Value,
-			})
-			break
-		}
-	}
-
-	return &(types.InterpretedCallFunc[string]{
-		Name:  name,
-		Value: _const,
-	}), len(s)
+	return utils.New[types.InterpretedCallFunc](utils.PropertiesAny{
+		{
+			Key:   "Name",
+			Value: name,
+		},
+		{
+			Key:   "Value",
+			Value: getConstName(result, constName),
+		},
+	}, handleError), len(s)
 }
 
-func Create(t *types.InterpretedCallFunc[string]) (lastInstruction *types.Instruction[string]) {
-	newConst := types.NewConst(
+func Create[F types.Func](t *types.InterpretedCallFunc) (lastInstruction *types.Instruction[F]) {
+	newConst := types.NewConst[F](
 		t.Value.Name,
-		types.AFFECTATION,
 		t.Value.Value,
-		types.CastToInstructionValueType(t.Value.Type),
 	)
 
 	if newConst != nil {
-		lastInstruction = types.NewFunctionCall[string](
-			t.Name,
-			newConst,
-		)
+		lastInstruction = types.NewFunctionCall[F](t.Name, newConst)
 	}
 
 	return

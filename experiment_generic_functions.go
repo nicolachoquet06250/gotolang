@@ -26,7 +26,7 @@ func getErrorHandler(prefix string) ErrorHandler {
 func _main() {
 	DebugAction(
 		func() {
-			t1 := GetFromType[Toto](
+			t1 := New[Toto](
 				[]Property[any]{
 					{
 						Key:   "Name",
@@ -44,7 +44,7 @@ func _main() {
 				println(fmt.Sprintf("%T", t1))
 			}
 
-			t2 := GetFromType[Tata](
+			t2 := New[Tata](
 				[]Property[any]{
 					{
 						Key:   "FullName",
@@ -62,7 +62,7 @@ func _main() {
 				println(fmt.Sprintf("%T", t2), "\n_______________________________________________")
 			}
 
-			t3 := GetFromType[Tata](
+			t3 := New[Tata](
 				[]Property[any]{
 					{
 						Key:   "FullName",
