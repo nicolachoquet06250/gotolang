@@ -1,7 +1,7 @@
 package parser
 
 import (
-	"gotolang/constants"
+	"fmt"
 	"gotolang/types"
 	"gotolang/utils"
 	"strings"
@@ -25,8 +25,8 @@ func createLine[T comparable](arr *[][]T, element *[]T) {
 }
 
 func Parse(data string) (code *[][]string) {
-	l := strings.Split(data, constants.LinesBreak)
-	var splitCode [][]string
+	chars := strings.Split(data, "")
+	/*var splitCode [][]string
 
 	for _, line := range l {
 		splitLine := strings.Split(line, " ")
@@ -86,7 +86,34 @@ func Parse(data string) (code *[][]string) {
 				println(col)
 			}
 		}
-	}, "", false)
+	}, "", false)*/
+
+	var lastWord string
+	for _, char := range chars {
+		utils.DebugAction(func() {
+			if char == "\n" {
+				println(`"\n"`)
+			} else if char == "\r" {
+				println(`"\r"`)
+			} else {
+				println(fmt.Sprintf(`"%s"`, char))
+			}
+		}, "Affichage d'un caractère à chaque itération", false)
+
+		println(fmt.Sprintf(`"%s"`, char), char == " ", types.Symbol(char).IsValid(), types.Keyword(char).IsValid())
+		if char == " " || types.Symbol(char).IsValid() || types.Keyword(char).IsValid() {
+			if lastWord == "\n" {
+				println(`"\n"`)
+			} else if lastWord == "\r" {
+				println(`"\r"`)
+			} else {
+				println(lastWord)
+			}
+			lastWord = ""
+		}
+
+		lastWord += char
+	}
 
 	return
 }

@@ -1,9 +1,13 @@
 package main
 
-import . "gotolang/types"
+import (
+	"gotolang/parser"
+	"gotolang/utils"
+	"os"
+)
 
 func main() {
-	/*file := os.Args[1]
+	file := os.Args[1]
 	data := utils.OpenFile(file)
 
 	var splitCode = parser.Parse(data)
@@ -16,18 +20,17 @@ func main() {
 		}
 	}, "", false)
 
-	syntax_interpreters.Interpret(
+	/*syntax_interpreters.Interpret(
 		types.NewProgram(splitCode),
 	)*/
 
-	c := Instruction[func(...any)]{
+	/*c := Instruction[func(...any)]{
 		Type: CreateConst,
 		Const: &TConst{
 			Name:  "toto",
 			Value: "test",
 		},
 	}
-
 	fPrint := Instruction[func(args ...any)]{
 		Type: CreateFunction,
 		Function: &TFunction[func(args ...any)]{
@@ -39,7 +42,6 @@ func main() {
 			},
 		},
 	}
-
 	call := Instruction[func(args ...any)]{
 		Type: CallFunction,
 		Call: &TCall[func(args ...any)]{
@@ -50,6 +52,5 @@ func main() {
 			},
 		},
 	}
-
-	call.Call.Func.Ref("start created func ref")
+	call.Call.Func.Ref("start created func ref")*/
 }

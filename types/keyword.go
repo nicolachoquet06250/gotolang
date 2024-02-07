@@ -10,18 +10,18 @@ var (
 	MULTILINE_COMMENT_END Keyword = "*/"
 )
 
-func (k *Keyword) IsValid() bool {
+func (k Keyword) IsValid() bool {
 	switch k {
-	case &CONST, &INLINE_COMMENT, &MULTILINE_COMMENT, &Function:
+	case CONST, INLINE_COMMENT, MULTILINE_COMMENT, Function:
 		return true
 	default:
 		return false
 	}
 }
 
-func (k *Keyword) Is(v string) bool {
+func (k Keyword) Is(v string) bool {
 	switch Keyword(v) {
-	case *k:
+	case k:
 		return true
 	default:
 		return false
